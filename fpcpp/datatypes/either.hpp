@@ -39,6 +39,11 @@ namespace fpcpp
         {
             return (*this);
         }
+        template <class F>
+        constexpr auto chain(const F &) const noexcept
+        {
+            return (*this);
+        }
         constexpr auto operator==(const Nothing &that) const noexcept
         {
             return true;
@@ -75,6 +80,11 @@ namespace fpcpp
         constexpr auto ap(const Right<F> &right) const noexcept(noexcept(right.value(value)))
         {
             return Right(right.value(value));
+        }
+        template <class F>
+        constexpr auto chain(const F &function) const noexcept(noexcept(function(value)))
+        {
+            return function(value);
         }
         constexpr auto operator==(const Just<T> &that) const noexcept
         {
