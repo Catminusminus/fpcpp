@@ -19,7 +19,7 @@ namespace fpcpp
         template <class S>
         static constexpr auto of(const S &value) noexcept
         {
-            return Identity(s);
+            return Identity(value);
         }
         template <class F>
         constexpr auto map(const F &function) const noexcept(noexcept(function(value)))
