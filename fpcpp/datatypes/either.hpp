@@ -44,9 +44,9 @@ namespace fpcpp
         {
             return (*this);
         }
-        constexpr auto operator==(const Nothing &that) const noexcept
+        constexpr auto operator==(const Left<T> &that) const noexcept
         {
-            return true;
+            return value == that.value;
         }
     };
 
@@ -86,7 +86,7 @@ namespace fpcpp
         {
             return function(value);
         }
-        constexpr auto operator==(const Just<T> &that) const noexcept
+        constexpr auto operator==(const Right<T> &that) const noexcept
         {
             return value == that.value;
         }
