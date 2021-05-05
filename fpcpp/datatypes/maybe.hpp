@@ -28,7 +28,7 @@ namespace fpcpp
     public:
         constexpr Maybe() {}
         constexpr Maybe(const T &value) : wrapped_value(value) {}
-        constexpr std::optional<T> unwrap() const noexcept
+        constexpr auto unwrap() const noexcept
         {
             if (wrapped_value)
             {
@@ -58,7 +58,7 @@ namespace fpcpp
             {
                 return function(wrapped_value.value());
             }
-            return wrapped_value;
+            return std::nullopt;
         }
         template <class S>
         constexpr auto ap(const Maybe<S> &that) const noexcept
