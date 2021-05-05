@@ -40,7 +40,6 @@ namespace fpcpp
         {
             return wrapped_value;
         }
-        template <class S>
         constexpr auto is_nothing() const noexcept
         {
             return !wrapped_value;
@@ -72,7 +71,7 @@ namespace fpcpp
             {
                 return Maybe<return_type>();
             }
-            return Maybe(that.unwrap()(wrapped_value.value()));
+            return Maybe<return_type>(that.unwrap().value()(wrapped_value.value()));
         }
         constexpr auto operator==(const Maybe<T> &that) const noexcept
         {
