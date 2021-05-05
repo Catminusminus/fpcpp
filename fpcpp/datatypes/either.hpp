@@ -44,7 +44,6 @@ namespace fpcpp
         {
             return wrapped_value;
         }
-        template <class S>
         constexpr auto is_left() const noexcept
         {
             return wrapped_value.index() == 0;
