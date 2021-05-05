@@ -29,6 +29,8 @@ namespace fpcpp
         constexpr Maybe() {}
         constexpr Maybe(const T &value) : wrapped_value(value) {}
         constexpr Maybe(T &&value) : wrapped_value(std::move(value)) {}
+        constexpr Maybe(const std::optional<T> &wrapped_value) : wrapped_value(wrapped_value) {}
+        constexpr Maybe(std::optional<T> &&wrapped_value) : wrapped_value(std::move(wrapped_value)) {}
         template <class S>
         static constexpr auto of(const S &value)
         {
@@ -36,11 +38,7 @@ namespace fpcpp
         }
         constexpr auto unwrap() const noexcept
         {
-            if (wrapped_value)
-            {
-                return wrapped_value.value();
-            }
-            return std::nullopt;
+            return wrapped_value;
         }
         template <class S>
         constexpr auto is_nothing() const noexcept
@@ -58,7 +56,7 @@ namespace fpcpp
             return Maybe<return_type>();
         }
         template <class F>
-        constexpr auto chain(const F &function) const noexcept(noexcept(check_function_can_throw_exceptions(function)))
+        constexpr std::optional<std::invoke_result_t<F, T>> chain(const F &function) const noexcept(noexcept(check_function_can_throw_exceptions(function)))
         {
             if (wrapped_value)
             {
