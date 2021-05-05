@@ -3,6 +3,7 @@
 
 #include <type_traits>
 #include <optional>
+#include <fpcpp/utils/typefest.hpp>
 
 namespace fpcpp
 {
@@ -55,7 +56,33 @@ namespace fpcpp
             return Maybe<return_type>();
         }
         template <class F>
-        constexpr std::optional<std::invoke_result_t<F, T>> chain(const F &function) const noexcept(noexcept(check_function_can_throw_exceptions(function)))
+        constexpr auto chain(const F &function) const noexcept(noexcept(check_function_can_throw_exceptions(function)))
+        {
+            using return_type = std::invoke_result_t<F, T>;
+            if constexpr (!has_value_type_v<return_type>)
+            {
+                return chain_not_return_maybe(function);
+            }
+            else if constexpr (std::is_same_v<return_type, Maybe<typename return_type::value_type>>)
+            {
+                return chain_return_maybe(function);
+            }
+            else
+            {
+                return chain_not_return_maybe(function);
+            }
+        }
+        template <class F>
+        constexpr std::invoke_result_t<F, T> chain_return_maybe(const F &function) const noexcept(noexcept(check_function_can_throw_exceptions(function)))
+        {
+            if (wrapped_value)
+            {
+                return function(wrapped_value.value());
+            }
+            return Maybe<typename std::invoke_result_t<F, T>::value_type>();
+        }
+        template <class F>
+        constexpr std::optional<std::invoke_result_t<F, T>> chain_not_return_maybe(const F &function) const noexcept(noexcept(check_function_can_throw_exceptions(function)))
         {
             if (wrapped_value)
             {
