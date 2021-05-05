@@ -28,6 +28,12 @@ namespace fpcpp
     public:
         constexpr Maybe() {}
         constexpr Maybe(const T &value) : wrapped_value(value) {}
+        constexpr Maybe(T &&value) : wrapped_value(std::move(value)) {}
+        template <class S>
+        static constexpr auto of(const S &value)
+        {
+            return Maybe<S>(value);
+        }
         constexpr auto unwrap() const noexcept
         {
             if (wrapped_value)
@@ -79,14 +85,14 @@ namespace fpcpp
     namespace maybe
     {
         template <class T>
-        constexpr auto of(const T &value) noexcept
+        constexpr auto of(T &&value) noexcept
         {
-            return Maybe(value);
+            return Maybe(std::forward<T>(value));
         }
         template <class T>
-        constexpr auto Just(const T &value) noexcept
+        constexpr auto Just(T &&value) noexcept
         {
-            return of(value);
+            return of(std::forward<T>(value));
         }
         template <class T>
         constexpr auto Nothing() noexcept

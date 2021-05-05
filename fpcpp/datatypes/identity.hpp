@@ -16,6 +16,7 @@ namespace fpcpp
 
     public:
         constexpr Identity(const T &value) : value(value) {}
+        constexpr Identity(T &&value) : value(std::move(value)) {}
         template <class S>
         static constexpr auto of(const S &value) noexcept
         {
@@ -41,6 +42,15 @@ namespace fpcpp
             return value == that.value;
         }
     };
+
+    namespace identity
+    {
+        template <class T>
+        constexpr auto of(T &&value) noexcept
+        {
+            return Identity(std::forward<T>(value));
+        }
+    }
 }
 
 #endif // FPCPP_DATATYPES_IDENTITY_HPP
