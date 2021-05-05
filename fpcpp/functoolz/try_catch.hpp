@@ -6,29 +6,37 @@
 
 namespace fpcpp
 {
-    template <class F>
-    constexpr auto try_catch(const F &function)
+    struct WrappedError
     {
+        std::exception error;
+        constexpr WrappedError(const std::exception &error) : error(error) {}
+    };
+
+    template <class F>
+    constexpr auto try_catch(const F &function) noexcept
+    {
+        using return_type = std::invoke_result_t<F>;
         try
         {
-            return Right(function());
+            return either::Right<WrappedError>(function());
         }
         catch (const std::exception &e)
         {
-            return Left(e);
+            return either::Left<return_type>(WrappedError(e));
         }
     }
 
     template <class F>
-    constexpr auto try_catch_maybe(const F &function)
+    constexpr auto try_catch_maybe(const F &function) noexcept
     {
+        using return_type = std::invoke_result_t<F>;
         try
         {
-            return Just(function());
+            return maybe::Just(function());
         }
         catch ()
         {
-            return Nothing();
+            return maybe::Nothing<return_type>();
         }
     }
 }
