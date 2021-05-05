@@ -41,9 +41,6 @@ namespace fpcpp
             return value == that.value;
         }
     };
-
-    template <class T>
-    concept identity = std::is_same_v<T, Identity<typename T::value_type>>;
 }
 
 #endif // FPCPP_DATATYPES_IDENTITY_HPP
