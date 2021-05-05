@@ -2,88 +2,98 @@
 #define FPCPP_DATATYPES_MAYBE_HPP
 
 #include <type_traits>
+#include <optional>
 
 namespace fpcpp
 {
-    class Nothing
-    {
-
-    public:
-        constexpr Nothing() {}
-        template <class T>
-        static constexpr auto of(const T &value) noexcept
-        {
-            return Nothing();
-        }
-        template <class F>
-        constexpr auto map(const F &) const noexcept
-        {
-            return Nothing();
-        }
-        template <class M>
-        constexpr auto ap(const M &) const noexcept
-        {
-            return Nothing();
-        }
-        template <class F>
-        constexpr auto chain(const F &) const noexcept
-        {
-            return Nothing();
-        }
-        constexpr auto operator==(const Nothing &that) const noexcept
-        {
-            return true;
-        }
-    };
-
     template <class T>
-    class Just
+    class Maybe
     {
     public:
         using value_type = T;
 
     private:
-        value_type value;
+        std::optional<T> wrapped_value;
+
+        template <class F>
+        constexpr auto check_function_can_throw_exceptions(const F &function) const
+        {
+            if (!wrapped_value)
+            {
+                return;
+            }
+            function(wrapped_value.value());
+        }
 
     public:
-        constexpr Just(const T &value) : value(value) {}
+        constexpr Maybe() {}
+        constexpr Maybe(const T &value) : wrapped_value(value) {}
+        constexpr std::optional<T> unwrap() const noexcept
+        {
+            if (wrapped_value)
+            {
+                return wrapped_value.value();
+            }
+            return std::nullopt;
+        }
         template <class S>
-        static constexpr auto of(const S &value) noexcept
+        constexpr auto is_nothing() const noexcept
         {
-            return Just(value);
+            return !wrapped_value;
         }
         template <class F>
-        constexpr auto map(const F &function) const noexcept(noexcept(function(value)))
+        constexpr auto map(const F &function) const noexcept(noexcept(check_function_can_throw_exceptions(function)))
         {
-            return Just(function(value));
-        }
-        constexpr auto ap(const Nothing &) const noexcept
-        {
-            return Nothing();
-        }
-        template <class F>
-        constexpr auto ap(const Just<F> &just) const noexcept(noexcept(just.value(value)))
-        {
-            return Just(just.value(value));
+            using return_type = std::invoke_result_t<F, T>;
+            if (wrapped_value)
+            {
+                return Maybe<return_type>(function(wrapped_value.value()));
+            }
+            return Maybe<return_type>();
         }
         template <class F>
-        constexpr auto chain(const F &function) const noexcept(noexcept(function(value)))
+        constexpr auto chain(const F &function) const noexcept(noexcept(check_function_can_throw_exceptions(function)))
         {
-            return function(value);
+            if (wrapped_value)
+            {
+                return function(wrapped_value.value());
+            }
+            return wrapped_value;
         }
-        constexpr auto operator==(const Just<T> &that) const noexcept
+        template <class S>
+        constexpr auto ap(const Maybe<S> &that) const noexcept
         {
-            return value == that.value;
+            using return_type = std::invoke_result_t<S, T>;
+            if (is_nothing() || that.is_nothing())
+            {
+                return Maybe<return_type>();
+            }
+            return Maybe(that.unwrap()(wrapped_value.value()));
+        }
+        constexpr auto operator==(const Maybe<T> &that) const noexcept
+        {
+            return wrapped_value == that.wrapped_value;
         }
     };
 
-    template <class T>
-    class Maybe
+    namespace maybe
     {
-    };
-
-    template <class T>
-    concept maybe = std::is_same_v<T, Nothing> || std::is_same_v<T, Just<typename T::value_type>>;
+        template <class T>
+        constexpr auto of(const T &value) noexcept
+        {
+            return Maybe(value);
+        }
+        template <class T>
+        constexpr auto Just(const T &value) noexcept
+        {
+            return of(value);
+        }
+        template <class T>
+        constexpr auto Nothing() noexcept
+        {
+            return Maybe<T>();
+        }
+    }
 }
 
 #endif // FPCPP_DATATYPES_MAYBE_HPP
