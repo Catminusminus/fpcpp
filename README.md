@@ -1,4 +1,4 @@
-# FPCPP: Functional Programing in C++
+# FPCPP: Functional Programming in C++
 
 This is an yet another functional programming library in C++20.
 
