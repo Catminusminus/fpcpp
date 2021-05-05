@@ -35,6 +35,8 @@ int main()
     // Chain Check
     constexpr const auto f_m = [](const auto x) { return maybe::of(x); };
     constexpr const auto g_m = [](const auto x) { return maybe::of(x + 1); };
-    // Chain Check
     static_assert(maybe_3.chain(f_m).chain(g_m) == maybe_3.chain([f_m, g_m](const auto x) { return f_m(x).chain(g_m); }));
+    // Monad Check
+    static_assert(maybe_3.of(1).chain(plus_one) == plus_one(1));
+    static_assert(maybe_3.chain([maybe_2](const auto x) { return maybe_2.of(x); }) == maybe_3);
 }
