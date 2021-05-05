@@ -13,7 +13,7 @@ This is an yet another functional programming library in C++20.
 - State (todo)
 - Either
 
-## Monad Tranformers
+## Monad Transformers
 
 - StateT (todo)
 
