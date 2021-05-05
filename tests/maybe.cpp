@@ -28,4 +28,13 @@ int main()
     constexpr const auto maybe_2 = maybe::of(plus_two);
     constexpr const auto maybe_3 = maybe::of(3);
     static_assert(maybe_3.ap(maybe_2.ap(maybe_1.map(h))) == maybe_3.ap(maybe_2).ap(maybe_1));
+    // Applicative Check
+    static_assert(maybe_3.ap(maybe_2.of(identity_func)) == maybe_3);
+    static_assert(maybe_3.of(4).ap(maybe_2.of(plus_one)) == maybe_3.of(plus_one(4)));
+    static_assert(maybe_3.of(4).ap(maybe_2) == maybe_2.ap(maybe_3.of([](const auto f_) { return f_(4); })));
+    // Chain Check
+    constexpr const auto f_m = [](const auto x) { return maybe::of(x); };
+    constexpr const auto g_m = [](const auto x) { return maybe::of(x + 1); };
+    // Chain Check
+    static_assert(maybe_3.chain(f_m).chain(g_m) == maybe_3.chain([f_m, g_m](const auto x) { return f_m(x).chain(g_m); }));
 }
