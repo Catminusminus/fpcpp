@@ -9,7 +9,7 @@ This is an yet another functional programming library in C++20.
 ## Monads
 
 - Maybe (tested)
-- IO
+- IO (tested)
 - Identity
 - State (todo)
 - Either

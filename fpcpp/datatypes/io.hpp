@@ -27,13 +27,15 @@ namespace fpcpp
         template <class T>
         static auto of(const T &value) noexcept
         {
-            return IO<T>([value]() { return value; });
+            return IO<T>([value]()
+                         { return value; });
         }
         template <class F>
         auto map(const F &function) const noexcept
         {
             using return_type = std::invoke_result_t<F, A>;
-            return IO<return_type>([function, this] { return function(action()); });
+            return IO<return_type>([function, *this]
+                                   { return function(action()); });
         }
         template <class F>
         auto chain(const F &function) const noexcept
@@ -56,18 +58,21 @@ namespace fpcpp
         auto chain_return_io(const F &function) const noexcept
         {
             using return_type = std::invoke_result_t<F, A>;
-            return IO<typename return_type::value_type>([function, this] { return function(action()).unsafePerform(); });
+            return IO<typename return_type::value_type>([function, *this]
+                                                        { return function(action()).unsafePerform(); });
         }
         template <class F>
         auto chain_not_return_io(const F &function) const noexcept
         {
-            return [function, this] { return function(action()); };
+            return [function, *this]
+            { return function(action()); };
         }
         template <class F>
         auto ap(const IO<F> &that) const noexcept
         {
             using return_type = std::invoke_result_t<F, A>;
-            return IO<return_type>([that, this] { return that.unsafePerform()(action()); });
+            return IO<return_type>([that, *this]
+                                   { return that.unsafePerform()(action()); });
         }
         auto operator==(const IO<A> &that) const noexcept
         {
@@ -80,7 +85,8 @@ namespace fpcpp
         template <class T>
         auto of(T &&value) noexcept
         {
-            return IO<T>([value = std::forward<T>(value)] { return value; });
+            return IO<T>([value = std::forward<T>(value)]
+                         { return value; });
         }
     }
 }
