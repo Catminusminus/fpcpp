@@ -2,6 +2,7 @@
 #define FPCPP_DATATYPES_IO_HPP
 
 #include <type_traits>
+#include <functional>
 #include <fpcpp/utils/typefest.hpp>
 
 namespace fpcpp
@@ -19,20 +20,20 @@ namespace fpcpp
     public:
         IO(const action_type &action) : action(action) {}
         IO(action_type &&action) : action(std::move(action)) {}
-        auto unsafePerform()
+        auto unsafePerform() const
         {
             return action();
         }
-        template <class B>
-        static auto of(const B &action) noexcept
+        template <class T>
+        static auto of(const T &value) noexcept
         {
-            return IO(action);
+            return IO<T>([value]() { return value; });
         }
         template <class F>
         auto map(const F &function) const noexcept
         {
             using return_type = std::invoke_result_t<F, A>;
-            return IO<return_type>([] { return function(action()); });
+            return IO<return_type>([function, this] { return function(action()); });
         }
         template <class F>
         auto chain(const F &function) const noexcept
@@ -55,20 +56,20 @@ namespace fpcpp
         auto chain_return_io(const F &function) const noexcept
         {
             using return_type = std::invoke_result_t<F, A>;
-            return IO<typename return_type::value_type>([] { return function(action()).unsafePerform(); });
+            return IO<typename return_type::value_type>([function, this] { return function(action()).unsafePerform(); });
         }
         template <class F>
         auto chain_not_return_io(const F &function) const noexcept
         {
-            return [] { return function(action()); };
+            return [function, this] { return function(action()); };
         }
         template <class F>
-        constexpr auto ap(const IO<F> &that) const noexcept
+        auto ap(const IO<F> &that) const noexcept
         {
             using return_type = std::invoke_result_t<F, A>;
-            return IO<return_type>([] { return that.unsafePerform()(action()); });
+            return IO<return_type>([that, this] { return that.unsafePerform()(action()); });
         }
-        constexpr auto operator==(const IO<A> &that) const noexcept
+        auto operator==(const IO<A> &that) const noexcept
         {
             return action == that.action;
         }
@@ -76,10 +77,10 @@ namespace fpcpp
 
     namespace io
     {
-        template <class A>
-        auto of(A &&action) noexcept
+        template <class T>
+        auto of(T &&value) noexcept
         {
-            return IO(std::forward<A>(action));
+            return IO<T>([value = std::forward<T>(value)] { return value; });
         }
     }
 }

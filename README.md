@@ -9,12 +9,14 @@ This is an yet another functional programming library in C++20.
 ## Monads
 
 - Maybe (tested)
+- IO
 - Identity
 - State (todo)
 - Either
 
 ## Monad Transformers
 
+- MaybeT (todo)
 - StateT (todo)
 
 ## Functional Toolz
