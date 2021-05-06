@@ -73,6 +73,15 @@ namespace fpcpp
             return action == that.action;
         }
     };
+
+    namespace io
+    {
+        template <class A>
+        auto of(A &&action) noexcept
+        {
+            return IO(std::forward<A>(action));
+        }
+    }
 }
 
 #endif // FPCPP_DATATYPES_IO_HPP
