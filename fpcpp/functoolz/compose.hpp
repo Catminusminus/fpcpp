@@ -2,16 +2,27 @@
 #define FPCPP_FUNCTOOLZ_COMPOSE_HPP
 
 #include <utility>
+#include <concepts>
+#include <tuple>
 
 namespace fpcpp
 {
-    template <class Head, class ...Tails>
-    constexpr auto compose(Head&& head, Tails&& ...tails)
+    template <class F>
+    constexpr auto compose(F f)
     {
-        // Todo: fix this to use perfect forwarding
-        return [head, tails...](auto&& ...args) {
-            return std::forward<Head>(head)(std::forward<Tails>(tails)(std::forward<decltype(args)>(args)...)...);
+        return f;
+    }
+    template <class F, class G>
+    constexpr auto compose(F f, G g)
+    {
+        return [=]<class ...Args>(Args&& ...args) {
+            return f(g(std::forward<Args>(args)...));
         };
+    }
+    template <class F, class ...Fs>
+    constexpr auto compose(F f, Fs ...fs)
+    {
+        return compose(f, compose(fs...));
     }
 }
 
