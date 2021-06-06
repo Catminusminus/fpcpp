@@ -28,14 +28,29 @@ namespace fpcpp
             return Identity(function(value));
         }
         template <class F>
+        static constexpr auto map(const F &function, const Identity& that) noexcept(noexcept(that.map(function)))
+        {
+            return that.map(function);
+        }
+        template <class F>
         constexpr auto ap(const Identity<F> &identity) const noexcept(noexcept(identity.value(value)))
         {
             return Identity(identity.value(value));
         }
         template <class F>
+        static constexpr auto ap(const Identity<F> &identity, const Identity& that) noexcept(noexcept(that.ap(identity)))
+        {
+            return that.ap(identity);
+        }
+        template <class F>
         constexpr auto chain(const F &function) const noexcept(noexcept(function(value)))
         {
             return function(value);
+        }
+        template <class F>
+        static constexpr auto chain(const F &function, const Identity& that) noexcept(noexcept(that.chain(function)))
+        {
+            return that.chain(function);
         }
         constexpr auto operator==(const Identity<T> &that) const noexcept
         {
@@ -49,6 +64,21 @@ namespace fpcpp
         constexpr auto of(T &&value) noexcept
         {
             return Identity(std::forward<T>(value));
+        }
+        template <class F, class T>
+        constexpr auto map(const F &function, const Identity<T>& that) noexcept(noexcept(that.map(function)))
+        {
+            return that.map(function);
+        }
+        template <class F, class T>
+        constexpr auto ap(const Identity<F> &identity, const Identity<T>& that) noexcept(noexcept(that.ap(identity)))
+        {
+            return that.ap(identity);
+        }
+        template <class F, class T>
+        constexpr auto chain(const F &function, const Identity<T>& that) noexcept(noexcept(that.chain(function)))
+        {
+            return that.chain(function);
         }
     }
 }
